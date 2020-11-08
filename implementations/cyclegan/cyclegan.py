@@ -1,10 +1,11 @@
 import argparse
-import os
+import os, sys
 import numpy as np
 import math
 import itertools
 import datetime
 import time
+from PIL import Image
 
 import torchvision.transforms as transforms
 from torchvision.utils import save_image, make_grid
@@ -13,9 +14,9 @@ from torch.utils.data import DataLoader
 from torchvision import datasets
 from torch.autograd import Variable
 
-from models import *
-from datasets import *
-from utils import *
+from models import weights_init_normal, GeneratorResNet, Discriminator
+from datasets import ImageDataset
+from utils import ReplayBuffer, LambdaLR
 
 import torch.nn as nn
 import torch.nn.functional as F
@@ -93,13 +94,13 @@ def main():
 
     # Learning rate update schedulers
     lr_scheduler_G = torch.optim.lr_scheduler.LambdaLR(
-        optimizer_G, lr_lambda=LambdaLR(opt.n_epochs, opt.epoch, opt.decay_epoch).step
+        optimizer_G, lr_lambda = LambdaLR(opt.n_epochs, opt.epoch, opt.decay_epoch).step
     )
     lr_scheduler_D_A = torch.optim.lr_scheduler.LambdaLR(
-        optimizer_D_A, lr_lambda=LambdaLR(opt.n_epochs, opt.epoch, opt.decay_epoch).step
+        optimizer_D_A, lr_lambda = LambdaLR(opt.n_epochs, opt.epoch, opt.decay_epoch).step
     )
     lr_scheduler_D_B = torch.optim.lr_scheduler.LambdaLR(
-        optimizer_D_B, lr_lambda=LambdaLR(opt.n_epochs, opt.epoch, opt.decay_epoch).step
+        optimizer_D_B, lr_lambda = LambdaLR(opt.n_epochs, opt.epoch, opt.decay_epoch).step
     )
 
     Tensor = torch.cuda.FloatTensor if cuda else torch.Tensor
